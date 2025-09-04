@@ -8,11 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CMPG223_Prac
+namespace Lib4Free
 {
-    public partial class EventManager : Form
+    public partial class BookDonation : Form
     {
-        public EventManager()
+        public BookDonation()
         {
             InitializeComponent();
         }

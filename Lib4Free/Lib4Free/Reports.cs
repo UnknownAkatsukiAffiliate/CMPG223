@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CMPG223_Prac
+namespace Lib4Free
 {
     public partial class Reports : Form
     {
