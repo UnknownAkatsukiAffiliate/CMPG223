@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.Data.SqlClient;
+using System;
 using System.Data;
-using Microsoft.Data.SqlClient;
 using System.Drawing;
+using System.Drawing.Printing;
+using System.Text;
 using System.Windows.Forms;
 
 namespace CMPG223_Prac
@@ -205,14 +207,81 @@ namespace CMPG223_Prac
 
         private void btnPrint_Click(object sender, EventArgs e)
         {
-            // Implement your printing logic here
-            MessageBox.Show("Print functionality coming soon!");
+            PrintDocument printDoc = new PrintDocument();
+            printDoc.PrintPage += PrintDoc_PrintPage;
+
+            PrintPreviewDialog preview = new PrintPreviewDialog
+            {
+                Document = printDoc
+            };
+            preview.ShowDialog();
         }
+
+        private void PrintDoc_PrintPage(object sender, PrintPageEventArgs e)
+        {
+            if (DGVOutput.DataSource is DataTable dt)
+            {
+                int y = 100;
+                int x = 50;
+
+                // Print column headers
+                foreach (DataColumn col in dt.Columns)
+                {
+                    e.Graphics.DrawString(col.ColumnName, new Font("Arial", 10, FontStyle.Bold),
+                        Brushes.Black, x, y);
+                    x += 150;
+                }
+
+                y += 30;
+                x = 50;
+
+                // Print rows
+                foreach (DataRow row in dt.Rows)
+                {
+                    foreach (var item in row.ItemArray)
+                    {
+                        e.Graphics.DrawString(item.ToString(), new Font("Arial", 10),
+                            Brushes.Black, x, y);
+                        x += 150;
+                    }
+                    y += 25;
+                    x = 50;
+                }
+            }
+        }
+
 
         private void btnExport_Click(object sender, EventArgs e)
         {
-            // Implement your export logic here (e.g., CSV/Excel)
-            MessageBox.Show("Export functionality coming soon!");
+            if (DGVOutput.DataSource is DataTable dt)
+            {
+                SaveFileDialog saveFile = new SaveFileDialog
+                {
+                    Filter = "CSV file (*.csv)|*.csv",
+                    FileName = "Report.csv"
+                };
+
+                if (saveFile.ShowDialog() == DialogResult.OK)
+                {
+                    StringBuilder sb = new StringBuilder();
+
+                    // Column headers
+                    IEnumerable<string> columnNames = dt.Columns.Cast<DataColumn>()
+                                                    .Select(column => column.ColumnName);
+                    sb.AppendLine(string.Join(",", columnNames));
+
+                    // Rows
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        IEnumerable<string> fields = row.ItemArray.Select(field => field.ToString());
+                        sb.AppendLine(string.Join(",", fields));
+                    }
+
+                    System.IO.File.WriteAllText(saveFile.FileName, sb.ToString());
+                    MessageBox.Show("Report exported successfully!", "Export", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
         }
+
     }
 }
